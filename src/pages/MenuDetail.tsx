@@ -42,6 +42,9 @@ export default function CreateMenu() {
             const response = await fetch(`/api/menu/${id}`);
             const data = await response.json();
             setMenu(data);
+            setNama(data.nama);
+            setDeskripsi(data.deskripsi);
+            setHarga(data.harga);
             setSize(data.size);
             setLabel(data.label);
             setKategori(data.kategori);
