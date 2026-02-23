@@ -54,8 +54,8 @@ export default function CreateMenu() {
     }, [id]);
     
     const setMenuFunc = async () => {
-        const response = await fetch("/api/create-menu", {
-            method: "POST",
+        const response = await fetch("/api/update-menu/" + id, {
+            method: "PUT",
             headers: {
                 "content-type": "application/json",
             },
@@ -69,7 +69,7 @@ export default function CreateMenu() {
             }),
         });
         if (response.status != 200) {
-            alert("Failed to create menu");
+            alert("Failed to update menu");
             return;
         }
         navigate("/list-menu");
