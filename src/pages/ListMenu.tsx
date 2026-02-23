@@ -55,6 +55,12 @@ export default function ListMenu() {
                             <Typography variant="body2">
                                 {menu.size}
                             </Typography>
+                            <Typography variant="body2">
+                                {menu.label}
+                            </Typography>
+                            <Typography variant="body2">
+                                {menu.kategori}
+                            </Typography>
                         </CardContent>
                         <CardActions>
                             <Button
