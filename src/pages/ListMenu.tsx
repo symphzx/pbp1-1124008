@@ -1,40 +1,44 @@
-import { Button, Card, CardActions, CardContent, Typography } from "@mui/material";
+import { Alert, Button, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useMenus } from "../hooks/useMenus";
 
-type Menu = {
-    id: string;
-    nama: string;
-    deskripsi: string;
-    harga: number;
-    size: string;
-    label: string;
-    kategori: string;
-    createdAt: string;
-    updatedAt: string;
-}
+
 export default function ListMenu() {
-    const [menu, setMenu] = useState<Menu[]>([]);
+    // const [menu, setMenu] = useState<Menu[]>([]);
+    const { menus, reload } = useMenus();
+    const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+    const [ deleteMenuId, setDeleteMenuId ] = useState<string>("");
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const getMenu = async () => {
-            const getMenuPost = await fetch("/api/list-menu", {
-                    method: "GET",
-                    headers: {
-                        "content-type": "application/json",
-                    },
-                });
-                const data = await getMenuPost.json();
-                setMenu(data);
+    const handleDeleteMenu = async (id: string) => {
+        const response = await fetch("/api/delete-menu/" + id, {
+            method: "DELETE",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                id,
+            }),
+        });
+        if (response.status != 200) {
+            alert("Failed to delete menu");
+            return;
         }
-        getMenu();
-    }, []);
+
+        setDeleteDialog(false);
+        setDeleteSuccess(true);
+    }
+
+    useEffect(() => {
+        reload();
+    }, [reload]);
 
     return (
         <div>
             <h1 style={{textAlign: "center"}}>Menu</h1>
-            {menu.map((menu) => {
+            {menus.map((menu) => {
                 return (
                     <Card sx={{ minWidth: 275 }} key={menu.id}>
                         <CardContent>
@@ -71,10 +75,56 @@ export default function ListMenu() {
                             >
                                 Menu Detail
                             </Button>
+                            <Button
+                                size="small"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteMenuId(menu.id);
+                                    setDeleteDialog(true);
+                                }}
+                            >
+                                Delete
+                            </Button>
                         </CardActions>
                     </Card>
                 );
             })}
+            <Dialog open={deleteDialog} onClose={() => setDeleteDialog(false)}>
+                <DialogTitle>Delete Post?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        This action cannot be undone. Are you sure you want to
+                        delete this post?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteDialog(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleDeleteMenu(deleteMenuId)}
+                    >
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            
+            <Snackbar
+                open={deleteSuccess}
+                autoHideDuration={3000}
+                onClose={() => setDeleteSuccess(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setDeleteSuccess(false)}
+                    severity="success"
+                    variant="filled"
+                >
+                    Post berhasil dihapus
+                </Alert>
+            </Snackbar>
         </div>
     );
 }

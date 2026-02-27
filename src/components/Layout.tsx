@@ -11,8 +11,8 @@ export function Layout(props: PropsWithChildren) {
                     <Box display={"flex"} alignItems={"center"} justifyContent={"center"} flexGrow={1}>
                         <Box/>
                         <Box>
-                            <Button variant="contained" sx={{marginRight: 40}} component={Link} to="/create-menu">Tambah Menu</Button>
-                            <Button variant="contained" component={Link} to="/list-menu">List Menu</Button>
+                            <Button variant="contained" color="secondary" sx={{marginRight: 40}} component={Link} to="/create-menu">Tambah Menu</Button>
+                            <Button variant="contained" color="secondary" component={Link} to="/list-menu">List Menu</Button>
                         </Box>
                     </Box>
                 </Toolbar>

@@ -1,45 +1,34 @@
 import { Button, FormControl, InputLabel, MenuItem, Select, TextField, type SelectChangeEvent } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useCreateMenu } from "../hooks/useCreateMenu";
+import type { KategoriMakanan, LabelMakanan, SizeMakanan } from "../types";
 
 export default function CreateMenu() {
+    const createMenu = useCreateMenu();
     const [nama, setNama] = useState<string>("");
     const [deskripsi, setDeskripsi] = useState<string>("");
     const [harga, setHarga] = useState<number>(0);
-    const [size, setSize] = useState<string>("");
-    const [label, setLabel] = useState<string>("");
-    const [kategori, setKategori] = useState<string>("");
+    const [size, setSize] = useState<SizeMakanan | undefined>(undefined);
+    const [label, setLabel] = useState<LabelMakanan | undefined>(undefined);
+    const [kategori, setKategori] = useState<KategoriMakanan | undefined>(undefined);
 
     const navigate = useNavigate();
 
     const handleChangeSize = (event: SelectChangeEvent) => {
-        setSize(event.target.value as string);
+        setSize(event.target.value as SizeMakanan);
     }
     const handleChangeLabel = (event: SelectChangeEvent) => {
-        setLabel(event.target.value as string);
+        setLabel(event.target.value as LabelMakanan);
     }
     const handleChangeKategori = (event: SelectChangeEvent) => {
-        setKategori(event.target.value as string);
+        setKategori(event.target.value as KategoriMakanan);
     }
     const setMenuFunc = async () => {
-        const response = await fetch("/api/create-menu", {
-            method: "POST",
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify({
-                nama,
-                deskripsi,
-                harga,
-                size,
-                label,
-                kategori,
-            }),
-        });
-        if (response.status != 200) {
-            alert("Failed to create menu");
-            return;
-        }
+        if(!size || !label || !kategori) return;
+        
+        createMenu({ nama, deskripsi, harga, size, label, kategori });
+
         navigate("/list-menu");
     };
 
