@@ -19,7 +19,7 @@ export type CreateMenuPayload = {
     kategori: string;
 };
 
-export type EditMenuPayload = CreateMenuPayload & { id: string };
+export type EditMenuPayload = { id: string } & CreateMenuPayload;
 
 export type AsyncDataState = 'pending' | 'loading' | 'fullfilled' | 'error';
 

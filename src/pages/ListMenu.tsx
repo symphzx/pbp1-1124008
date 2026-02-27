@@ -2,10 +2,11 @@ import { Alert, Button, Card, CardActions, CardContent, Dialog, DialogActions, D
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useMenus } from "../hooks/useMenus";
+import { useDeleteMenu } from "../hooks/useDeleteMenu";
 
 
 export default function ListMenu() {
-    // const [menu, setMenu] = useState<Menu[]>([]);
+    const deleteMenu = useDeleteMenu();
     const { menus, reload } = useMenus();
     const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
@@ -13,19 +14,9 @@ export default function ListMenu() {
     const navigate = useNavigate();
 
     const handleDeleteMenu = async (id: string) => {
-        const response = await fetch("/api/delete-menu/" + id, {
-            method: "DELETE",
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify({
-                id,
-            }),
-        });
-        if (response.status != 200) {
-            alert("Failed to delete menu");
-            return;
-        }
+        deleteMenu(id);
+        
+        reload();
 
         setDeleteDialog(false);
         setDeleteSuccess(true);

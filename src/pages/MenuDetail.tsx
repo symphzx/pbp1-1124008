@@ -1,80 +1,53 @@
 import { Button, FormControl, InputLabel, MenuItem, Select, TextField, type SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-
-type Menu = {
-    id: number;
-    nama: string;
-    deskripsi: string;
-    harga: number;
-    size: string;
-    label: string;
-    kategori: string;
-    createdAt: string;
-    updatedAt: string;
-};
+import { useEditMenu } from "../hooks/useEditMenu";
+import type { KategoriMakanan, LabelMakanan, SizeMakanan } from "../types";
+import { useMenus } from "../hooks/useMenus";
 
 export default function CreateMenu() {
     const { id } = useParams();
-    const [menu, setMenu] = useState<Menu>();
+    const editMenu = useEditMenu();
+    const { menus } = useMenus();
     const [nama, setNama] = useState<string>("");
     const [deskripsi, setDeskripsi] = useState<string>("");
     const [harga, setHarga] = useState<number>(0);
-    const [size, setSize] = useState<string>("");
-    const [label, setLabel] = useState<string>("");
-    const [kategori, setKategori] = useState<string>("");
+    const [size, setSize] = useState<SizeMakanan | "">("");
+    const [label, setLabel] = useState<LabelMakanan | "">("");
+    const [kategori, setKategori] = useState<KategoriMakanan | "">("");
 
     const navigate = useNavigate();
     
 
     const handleChangeSize = (event: SelectChangeEvent) => {
-        setSize(event.target.value as string);
+        setSize(event.target.value as SizeMakanan);
     }
     const handleChangeLabel = (event: SelectChangeEvent) => {
-        setLabel(event.target.value as string);
+        setLabel(event.target.value as LabelMakanan);
     }
     const handleChangeKategori = (event: SelectChangeEvent) => {
-        setKategori(event.target.value as string);
+        setKategori(event.target.value as KategoriMakanan);
     }
 
     useEffect(() => {
         const fetchMenu = async () => {
-            const response = await fetch(`/api/menu/${id}`);
-            const data = await response.json();
-            setMenu(data);
-            setNama(data.nama);
-            setDeskripsi(data.deskripsi);
-            setHarga(data.harga);
-            setSize(data.size);
-            setLabel(data.label);
-            setKategori(data.kategori);
-            if (!response.ok) {
-                setMenu(undefined);
+            const filteredMenu = menus.find((menu) => menu.id == id);
+            if (!filteredMenu) {
                 return;
             }
+            setNama(filteredMenu.nama);
+            setDeskripsi(filteredMenu.deskripsi);
+            setHarga(filteredMenu.harga);
+            setSize(filteredMenu.size as SizeMakanan);
+            setLabel(filteredMenu.label as LabelMakanan);
+            setKategori(filteredMenu.kategori as KategoriMakanan);
         };
         fetchMenu();
-    }, [id]);
+    }, [id, menus]);
     
-    const setMenuFunc = async () => {
-        const response = await fetch("/api/update-menu/" + id, {
-            method: "PUT",
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify({
-                nama,
-                deskripsi,
-                harga,
-                size,
-                label,
-                kategori,
-            }),
-        });
-        if (response.status != 200) {
-            alert("Failed to update menu");
-            return;
-        }
+    const editMenuFunc = async () => {
+        if(!id || !nama || !deskripsi || !harga|| !size || !label || !kategori) return;
+        editMenu({ id, nama, deskripsi, harga, size, label, kategori });
         navigate("/list-menu");
     };
     return (
@@ -100,7 +73,7 @@ export default function CreateMenu() {
                     <td>
                         <TextField
                             id="nama-menu"
-                            defaultValue={menu?.nama}
+                            value={nama}
                             variant="outlined"
                             onChange={(e) => setNama(e.target.value)}
                         />
@@ -128,7 +101,7 @@ export default function CreateMenu() {
                     <td>
                         <TextField
                             id="deskripsi"
-                            defaultValue={menu?.deskripsi}
+                            value={deskripsi}
                             variant="outlined"
                             onChange={(e) => setDeskripsi(e.target.value)}
                         />
@@ -157,7 +130,7 @@ export default function CreateMenu() {
                     <td>
                         <TextField
                             id="harga"
-                            defaultValue={menu?.harga}
+                            value={harga}
                             variant="outlined"
                             onChange={(e) => setHarga(parseInt(e.target.value))}
                         />
@@ -165,7 +138,7 @@ export default function CreateMenu() {
                     <td style={{ width: "20%" }}>Kategori</td>
                     <td>
                         <FormControl fullWidth>
-                            <InputLabel id="kategori-label">Size</InputLabel>
+                            <InputLabel id="kategori-label">Kategori</InputLabel>
                             <Select
                                 labelId="kategori-label"
                                 id="kategori"
@@ -180,7 +153,7 @@ export default function CreateMenu() {
                     </td>
                 </tr>
             </table>
-            <Button variant="contained" onClick={setMenuFunc}>Simpan Menu</Button>
+            <Button variant="contained" onClick={editMenuFunc}>Simpan Menu</Button>
         </div>
     );
 }
